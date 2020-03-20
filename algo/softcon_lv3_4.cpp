@@ -1,130 +1,56 @@
+#include <stdio.h>
 #include <iostream>
-#include <vector>
-#include <cstring>
+#include <string.h>
+#include <cstdlib>
 using namespace std;
 #pragma warning(disable:4996)
 
-int n;
-char input[1000000];
-int v0 = 0, v1 = 0, v2 = 0;
-int v0f = 0, v1f = 0, v2f = 0;
-int stand;
-
-void check() {
-	stand = n / 3;
-	if (v0 == stand) {
-		while (v1 > stand) {
-			v1--;
-			v2++;
-			v1f--;
-			v2f++;
-		}
-		while (v1 < stand) {
-			v1++;
-			v2--;
-			v1f++;
-			v2f--;
-		}
-	}
-	else if (v0 > stand) {
-		while (v2 < stand) {
-			v2++;
-			v0--;
-			v2f++;
-			v0f--;
-		}while (v1 < stand) {
-			v1++;
-			v0--;
-			v1f++;
-			v0f--;
-		}
-	}
-	else {
-		while (v1 > stand) {
-			v1--;
-			v0++;
-			v1f--;
-			v0f++;
-		}while (v2 > stand) {
-			v2--;
-			v0++;
-			v2f--;
-			v0f++;
-		}
-	}
-}
-
 int main() {
+	int cnt[3] = { 0, };
+	int n;
 	scanf("%d", &n);
-	scanf("%s", input);
-	int len = strlen(input);
-	for (int i = 0; i < len; i++) {
-		if (input[i] == '0') v0++;
-		else if (input[i] == '1') v1++;
-		else if (input[i] == '2') v2++;
-	}
-	//	printf("%d %d %d\n", v0, v1, v2);
-	check();
-	//	printf("%d %d %d\n", v0f, v1f, v2f);
+	char s[400000];
+	scanf("%s", s);
 
-	if (v0f > 0) { //v0 더해야할때
-		if (v1f < 0) {
-			for (int i = 0; i < len; i++) {
-				if (input[i] == '1') {
-					input[i] = '0';
-					v1f++;
-					if (v1f == 0) break;
-				}
-			}
-		}
-		if (v2f < 0) {
-			for (int i = 0; i < len; i++) {
-				if (input[i] == '2') {
-					input[i] = '0';
-					v2f++;
-					if (v2f == 0) break;
-				}
-			}
+	for (int i = 0; i < n; i++) {
+		s[i] = s[i] - '0';
+	}
+
+	for (int i = 0; i < n; i++) {
+		cnt[s[i]]++; //cnt에 개수 들어감
+	}
+	int stand = n / 3;
+
+	for (int i = n - 1; i >= 0; i--) {
+		if (cnt[2] >= stand) break;
+		if (s[i] != 2 && cnt[s[i]] > stand) {
+			cnt[s[i]]--;
+			s[i] = 2;
+			cnt[2]++;
 		}
 	}
-	else if (v0f < 0) {
-		if (v2f > 0) {
-			for (int i = len - 1; i >= 0; i--) {
-				if (input[i] == '0') {
-					input[i] = '2';
-					v2f--;
-					if (v2f == 0) break;
-				}
-			}
-		}
-		if (v1f > 0) {
-			for (int i = len - 1; i >= 0; i--) {
-				if (input[i] == '0') {
-					input[i] = '1';
-					v1f--;
-					if (v1f == 0) break;
-				}
-			}
+
+	for (int i = n - 1; i >= 0; i--) {
+		if (cnt[1] >= stand) break;
+		if (s[i] != 1 && cnt[s[i]] > stand) {
+			cnt[s[i]]--;
+			s[i] = 1;
+			cnt[1]++;
 		}
 	}
-	else { //0은 같을때
-		if (v1f > 0) {
-			for (int i = 0; i < len; i++) {
-				if (input[i] == '2') {
-					input[i] = '1';
-					v1f--;
-					if (v1f == 0) break;
-				}
-			}
-		}if (v2f > 0) {
-			for (int i = len - 1; i >= 0; i--) {
-				if (input[i] == '1') {
-					input[i] = '2';
-					v2f--;
-					if (v2f == 0) break;
-				}
-			}
+
+	for (int i = 0; i < n; i++) {
+		if (cnt[0] >= stand) break;
+		if (s[i] != 0 && cnt[s[i]] > stand) {
+			cnt[s[i]]--;
+			s[i] = 0;
+			cnt[0]++;
 		}
 	}
-	for (int i = 0; i < len; i++) printf("%c", input[i]);
+
+	for (int i = 0; i < n; i++) {
+		s[i] = s[i] + '0';
+	}
+
+	printf("%s", s);
 }
