@@ -12,7 +12,8 @@ int N, k;
 
 char ml[100010];
 char mr[100010];
-bool visited[100010] = { false, };
+bool lvisited[100010];
+bool rvisited[100010];
 
 class Case {
 public:
@@ -30,13 +31,21 @@ int bfs() {
 		q.pop();
 		if (C.cur <= 0) continue;
 		if (C.cur > N) return 1;
-		if (C.pos == true && ml[C.cur] == '0') continue;
-		if (C.pos == false && mr[C.cur] == '0') continue;
-		if (visited[C.cur]) continue;
+		if (C.pos == true && ml[C.cur - 1] == '0') continue;
+		if (C.pos == false && mr[C.cur - 1] == '0') continue;
+		if (C.cur <= C.sec) continue;
+		if (C.pos == true) {
+			if (lvisited[C.cur]) continue;
+			lvisited[C.cur] = true;
+		}
+		if (C.pos == false) {
+			if (rvisited[C.cur]) continue;
+			rvisited[C.cur] = true;
+		}
 		q.push({ C.pos,C.cur + 1,C.sec + 1 }); //한칸앞
 		q.push({ C.pos,C.cur - 1,C.sec + 1 }); //한칸뒤
 		q.push({ !C.pos,C.cur + k,C.sec + 1 }); //반대줄 점프
-		visited[C.sec + 1] = true;
+
 	}
 	return 0;
 }
