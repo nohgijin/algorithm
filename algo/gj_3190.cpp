@@ -1,12 +1,18 @@
 #include <stdio.h>
-#include <iostream>
 #include <cstring>
-#include <vector>
-#include <algorithm>
-#include <map>
 #include <queue>
+#include <map>
+#include <vector>
+#include <climits>
+#include <algorithm>
 #pragma warning(disable:4996)
 using namespace std;
+
+int N, K, L;
+int input[110][110] = { 0, };
+char dir[11100] = { 0, };
+int now_dir = 4;
+int total_time = 0;
 
 class Pos {
 public:
@@ -14,145 +20,102 @@ public:
 	int x;
 };
 
-int N, K;
-int L;
-int input[110][110] = { 0, };
-
-int posx = 1;
-int posy = 1;
-int bfrdir = 4;
-int total_sec = 0;
-
 queue<Pos> snake;
-queue<Pos> copy_snake;
+//위1 아래2 왼3 오른4
 
-bool check() {
-	bool chk = false;
-	int ss = snake.size();
-	for (int i = 0; i < ss; i++) {
-		Pos T = snake.front();
-		copy_snake.push(T);
-		snake.pop();
-		if (T.y == posy && T.x == posx) chk = true;
+void show() {
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			printf("%2d", input[i][j]);
+		}
+		printf("\n");
 	}
-
-	int css = copy_snake.size();
-	for (int i = 0; i < css; i++) {
-		Pos T = copy_snake.front();
-		snake.push(T);
-		copy_snake.pop();
-	}
-	return chk;
+	printf("\n");
 }
+//위1 아래2 왼3 오른4
 
-void insert() {
-	if (input[posy][posx]) {
-		snake.push({ posy,posx });
-		input[posy][posx] = 0;
+bool move() {
+	Pos head = snake.back();
+	Pos tail = snake.front();
+	Pos nextHead;
+	if (now_dir == 1) {
+		nextHead = { head.y - 1,head.x };
+	}
+	else if (now_dir == 2) {
+		nextHead = { head.y + 1,head.x };
+	}
+	else if (now_dir == 3) {
+		nextHead = { head.y,head.x - 1 };
 	}
 	else {
+		nextHead = { head.y,head.x + 1 };
+	}
+	if (nextHead.y > N || nextHead.x > N || nextHead.y <= 0 || nextHead.x <= 0) return false;
+	if (input[nextHead.y][nextHead.x] == -1) return false;
+
+	if (input[nextHead.y][nextHead.x] == 1) {
+		input[nextHead.y][nextHead.x] = 0;
+		head = nextHead;
+		input[head.y][head.x] = -1;
+		snake.push(head);
+	}
+	else if (input[nextHead.y][nextHead.x] == 0) {
+		head = nextHead;
+		input[head.y][head.x] = -1;
+		snake.push(head);
+
+		input[tail.y][tail.x] = 0;
 		snake.pop();
-		snake.push({ posy,posx });
+	}
+	total_time++;
 
-	}
-}
-
-bool dummy(int sec, int bfr_dir, char dir, int y, int x) {
-	if (bfr_dir == 1) { //원래방향 위
-		while (sec) {
-			posy--;
-			total_sec++;
-			sec--;
-			if (posy <= 0) return false;
-			insert();
-			if (check()) return false;
-		}
-		if (dir == 'L') {
-			bfr_dir = 3;
-		}
-		else if (dir == 'D') {
-			bfr_dir = 4;
-		}
-
-	}
-	else if (bfr_dir == 2) { //원래방향 아래
-		while (sec) {
-			posy++;
-			total_sec++;
-			sec--;
-			if (posy > N) return false;
-			insert();
-			if (check()) return false;
-		}
-		if (dir == 'L') {
-			bfr_dir = 4;
-		}
-		else if (dir == 'D') {
-			bfr_dir = 3;
-		}
-	}
-	else if (bfr_dir == 3) { //원래방향 왼쪽
-		while (sec) {
-			posx--;
-			total_sec++;
-			sec--;
-			if (posx <= 0) return false;
-			insert();
-			if (check()) return false;
-		}
-		if (dir == 'L') {
-			bfr_dir = 2;
-		}
-		else if (dir == 'D') {
-			bfr_dir = 1;
-		}
-	}
-
-	else { //원래방향 오른쪽
-		while (sec) {
-			posx++;
-			total_sec++;
-			sec--;
-			if (posx > N) return false;
-			insert();
-			if (check()) return false;
-		}
-		if (dir == 'L') {
-			bfr_dir = 1;
-		}
-		else if (dir == 'D') {
-			bfr_dir = 2;
-		}
-	}
 	return true;
 }
 
 int main() {
-	int cmd1[110];
-	char cmd2[110];
-
+	input[1][1] = -1;
+	snake.push({ 1, 1 });
 	scanf("%d", &N);
 	scanf("%d", &K);
-
 	for (int i = 0; i < K; i++) {
-		int y, x;
-		scanf("%d %d", &y, &x);
-		input[y][x] = 1;
+		int t1, t2;
+		scanf("%d %d", &t1, &t2);
+		input[t1][t2] = 1;
 	}
 	scanf("%d", &L);
 	for (int i = 0; i < L; i++) {
-		int X;
-		char C;
-		scanf("%d %c", &X, &C);
-		cmd1[i] = X;
-		cmd2[i] = C;
+		int t1;
+		char t2;
+		scanf("%d %c", &t1, &t2);
+		dir[t1] = t2;
 	}
-
-	snake.push({ 1,1 });
-
-	for (int i = 0; i < L; i++) {
-		if (!dummy(cmd1[i], bfrdir, cmd2[i], posy, posx)) break;
+	//위1 아래2 왼3 오른4
+	//왼쪽 L 오른쪽 D
+	//show();
+	while (true) {
+		//show();
+		if (move()) {
+			if (dir[total_time]) {
+				if (now_dir == 1) {
+					if (dir[total_time] == 'L') now_dir = 3;
+					else if (dir[total_time] == 'D') now_dir = 4;
+				}
+				else if (now_dir == 2) {
+					if (dir[total_time] == 'L') now_dir = 4;
+					else if (dir[total_time] == 'D') now_dir = 3;
+				}
+				else if (now_dir == 3) {
+					if (dir[total_time] == 'L') now_dir = 2;
+					else if (dir[total_time] == 'D') now_dir = 1;
+				}
+				else {
+					if (dir[total_time] == 'L') now_dir = 1;
+					else if (dir[total_time] == 'D') now_dir = 2;
+				}
+			}
+		}
+		else break;
+		//show();
 	}
-
-	printf("%d", total_sec);
+	printf("%d", total_time + 1);
 }
