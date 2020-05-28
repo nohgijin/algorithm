@@ -34,21 +34,10 @@ void show() {
 	}
 }
 
-void cal() {
-	int vs = v.size();
-	int sheep = 0;
-	int wolf = 0;
-	for (int i = 0; i < vs; i++) {
-		if (v[i] == 'v') wolf++;
-		else if (v[i] == 'o') sheep++;
-	}
-	if (sheep > wolf) {
-		totalSheep += sheep;
-	}
-	else totalWolf += wolf;
-}
 
 void bfs(int y, int x) {
+	int sheep = 0;
+	int wolf = 0;
 	Q.push({ y,x });
 	while (!Q.empty()) {
 		Case C = Q.front();
@@ -61,11 +50,14 @@ void bfs(int y, int x) {
 		Q.push({ C.y - 1,C.x });
 		Q.push({ C.y,C.x + 1 });
 		Q.push({ C.y,C.x - 1 });
-		if (input[C.y][C.x] != '.') {
-			v.push_back(input[C.y][C.x]);
-		}
+		if (input[C.y][C.x] == 'v') wolf++;
+		else if (input[C.y][C.x] == 'o') sheep++;
 	}
-	cal();
+
+	if (sheep > wolf) {
+		totalSheep += sheep;
+	}
+	else totalWolf += wolf;
 }
 
 
